@@ -10,7 +10,8 @@
   },
   "license": "MIT",
   "files": [
-    "index.js"
+    "index.js",
+    "LICENSE"
   ],
   "main": "index.js",
   "engines": {
@@ -20,8 +21,7 @@
     "test": "mocha"
   },
   "devDependencies": {
-    "mocha": "*",
-    "should": "*"
+    "mocha": "*"
   },
   "keywords": [
     "array",
@@ -31,9 +31,9 @@
   "verb": {
     "related": {
       "list": [
-        "arr-reduce",
         "arr-filter",
         "arr-flatten",
+        "arr-reduce",
         "array-unique"
       ]
     }
