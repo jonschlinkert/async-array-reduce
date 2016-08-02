@@ -7,18 +7,42 @@
 
 'use strict';
 
-module.exports = function reduce(arr, init, fn, cb) {
-  if (typeof cb !== 'function') {
-    throw new TypeError('a callback function is expected');
+module.exports = function reduce(arr, memo, iteratee, cb) {
+  if (!Array.isArray(arr)) {
+    throw new TypeError('expected an array');
   }
+  if (typeof iteratee !== 'function') {
+    throw new TypeError('expected iteratee to be a function');
+  }
+  if (typeof cb !== 'function') {
+    throw new TypeError('expected callback to be a function');
+  }
+
+  var callback = once(cb);
 
   (function next(i, acc) {
     if (i === arr.length) {
-      return cb(null, acc);
+      callback(null, acc);
+      return;
     }
-    fn(acc, arr[i], function(err, val) {
-      if (err) return cb(err);
+
+    iteratee(acc, arr[i], function(err, val) {
+      if (err) {
+        next(err);
+        return;
+      }
       next(i + 1, val);
     });
-  })(0, init);
+  })(0, memo);
 };
+
+function once(fn) {
+  var value;
+  return function() {
+    if (!fn.called) {
+      fn.called = true;
+      value = fn.apply(this, arguments);
+    }
+    return value;
+  };
+}
