@@ -28,7 +28,7 @@ module.exports = function reduce(arr, memo, iteratee, cb) {
 
     iteratee(acc, arr[i], function(err, val) {
       if (err) {
-        next(err);
+        callback(err);
         return;
       }
       next(i + 1, val);
