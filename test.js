@@ -9,10 +9,9 @@ describe('async-array-reduce', function() {
     assert.equal(typeof reduce, 'function');
   });
 
-  it('should work with an array memo', function(cb) {
+  it('should work with an array accumulator', function(cb) {
     reduce(['a', 'b', 'c'], [], function(acc, val, next) {
-      acc.push(val + val);
-      next(null, acc);
+      next(null, acc.concat(val + val));
     }, function(err, arr) {
       if (err) return cb(err);
       assert.deepEqual(arr, ['aa', 'bb', 'cc']);
@@ -20,61 +19,64 @@ describe('async-array-reduce', function() {
     });
   });
 
-  it('should work with a string memo', function(cb) {
-    reduce([
-      function(str, next) {
-        str += 'foo';
-        next(null, str);
-      },
-      function(str, next) {
-        str += 'bar';
-        setTimeout(function() {
-          next(null, str);
-        }, 200);
-      },
-      function(str, next) {
-        str += 'baz';
-        next(null, str);
-      },
-    ], '', function(acc, fn, next) {
-      fn(acc, next);
+  it('should automatically make accumulator an array', function(cb) {
+    reduce(['a', 'b', 'c'], function(acc, val, next) {
+      next(null, acc.concat(val + val));
     }, function(err, arr) {
       if (err) return cb(err);
+      assert.deepEqual(arr, ['aa', 'bb', 'cc']);
+      cb();
+    });
+  });
+
+  it('should work with a string accumulator', function(cb) {
+    reduce(['foo', 'bar', 'baz'], '', function(acc, val, next) {
+      next(null, acc + val);
+    }, function(err, arr) {
+      if (err) {
+        cb(err);
+        return;
+      }
       assert.equal(arr, 'foobarbaz');
       cb();
     });
   });
 
-  it('should throw an error when callback is not passed', function(cb) {
-    try {
-      reduce([], '', function(){});
-      cb(new Error('expected an error'));
-    } catch (err) {
-      assert(err);
-      assert.equal(err.message, 'expected callback to be a function');
+  it('should run in series', function(cb) {
+    reduce(['foo', 'bar', 'baz'], '', function(acc, val, next) {
+      setTimeout(function() {
+        next(null, acc + val);
+      }, 100);
+    }, function(err, arr) {
+      if (err) {
+        cb(err);
+        return;
+      }
+      assert.equal(arr, 'foobarbaz');
       cb();
-    }
+    });
   });
 
-  it('should throw an error when iteratee is not a function', function(cb) {
-    try {
-      reduce([], '', 'foo');
-      cb(new Error('expected an error'));
-    } catch (err) {
+  it('should throw an error when the first argument is not an arry', function(cb) {
+    reduce({}, [], function() {}, function(err) {
       assert(err);
-      assert.equal(err.message, 'expected iteratee to be a function');
       cb();
-    }
+    });
   });
 
-  it('should throw an error when first argument is not an array', function(cb) {
-    try {
-      reduce('foo', '', function(){});
-      cb(new Error('expected an error'));
-    } catch (err) {
+  it('should throw an error when the callback is not a function', function() {
+    assert.throws(function() {
+      reduce();
+    });
+    assert.throws(function() {
+      reduce(null, function() {}, {});
+    });
+  });
+
+  it('should throw an error when the iterator is not a function', function(cb) {
+    reduce(['a'], [], null, function(err) {
       assert(err);
-      assert.equal(err.message, 'expected an array');
       cb();
-    }
+    });
   });
 });
