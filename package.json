@@ -1,7 +1,7 @@
 {
   "name": "async-array-reduce",
   "description": "Async array reduce. Asynchronously applies a function against an accumulator and each element in an array (from left to right, in series) to reduce it to a single value.",
-  "version": "0.2.1",
+  "version": "1.0.0",
   "homepage": "https://github.com/jonschlinkert/async-array-reduce",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "contributors": [
